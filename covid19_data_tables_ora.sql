@@ -104,25 +104,63 @@ and obs.start_date >= date '2019-10-01'
 -- * Repeat a lab if you use multiple codes (see PT as an example).
 -- * Set your C_BASECODE=NULL if you do not have the lab (see procalcitonin as an example).
 --------------------------------------------------------------
+create table loinc_mapping as
 select Test, LOINC, C_BASECODE
-	into #loinc_mapping
 	from (
-		select 'white blood cell count (Leukocytes)' Test, '6690-2' LOINC, 'LAB|LOINC:26464-8' C_BASECODE
-		union all select 'neutrophil count','751-8','LAB|LOINC:751-8'
-		union all select 'lymphocyte count','731-0','LAB|LOINC:731-0'
-		union all select 'albumin','1751-7','LAB|LOINC:1751-7'
-		union all select 'lactate dehydrogenase (LDH)','2532-0','LAB|LOINC:2532-0'
-		union all select 'alanine aminotransferase (ALT)','1742-6','LAB|LOINC:1742-6'
-		union all select 'aspartate aminotransferase (AST)','1920-8','LAB|LOINC:1920-8'
-		union all select 'total bilirubin','1975-2','LAB|LOINC:1975-2'
-		union all select 'creatinine','2160-0','LAB|LOINC:2160-0'
-		union all select 'cardiac troponin','49563-0','LAB|LOINC:10839-9'
-		union all select 'D-dimer','7799-0','LAB|LOINC:48065-7'
-		union all select 'prothrombin time (PT)','5902-2','LAB|LOINC:5964-2'
-		union all select 'prothrombin time (PT)','5902-2','LAB|LOINC:34714-6'
-		union all select 'procalcitonin','33959-8',NULL
-		union all select 'C-reactive protein (CRP)','1988-5','LAB|LOINC:1988-5'
+		select 'white blood cell count (Leukocytes)' Test, '6690-2' LOINC, 'KUH|COMPONENT_ID:3009' C_BASECODE
+        from dual
+		union all select 'neutrophil count','751-8', 'KUH|COMPONENT_ID:3012'
+        from dual
+		union all select 'lymphocyte count','731-0','KUH|COMPONENT_ID:3014'
+        from dual
+		union all select 'albumin','1751-7', 'KUH|COMPONENT_ID:1'
+        from dual
+		union all select 'albumin','1751-7', 'KUH|COMPONENT_ID:2023'
+        from dual
+		union all select 'albumin','1751-7', 'KUH|COMPONENT_ID:51066'
+        from dual
+		union all select 'lactate dehydrogenase (LDH)','2532-0', 'KUH|COMPONENT_ID:2070'
+        from dual
+		union all select 'alanine aminotransferase (ALT)','1742-6', 'KUH|COMPONENT_ID:2065'
+        from dual
+		union all select 'alanine aminotransferase (ALT)','1742-6', 'KUH|COMPONENT_ID:51082'
+        from dual
+		union all select 'aspartate aminotransferase (AST)','1920-8','KUH|COMPONENT_ID:2064'
+        from dual
+		union all select 'aspartate aminotransferase (AST)','1920-8','KUH|COMPONENT_ID:51154'
+        from dual
+		union all select 'total bilirubin','1975-2', 'KUH|COMPONENT_ID:2024'
+        from dual
+		union all select 'total bilirubin','1975-2', 'KUH|COMPONENT_ID:52182'
+        from dual
+		union all select 'creatinine','2160-0', 'KUH|COMPONENT_ID:2009'
+        from dual
+		union all select 'creatinine','2160-0', 'KUH|COMPONENT_ID:51418'
+        from dual
+		union all select 'cardiac troponin','49563-0', 'KUH|COMPONENT_ID:2326'  -- TROPONIN I	TNI
+        from dual
+		union all select 'cardiac troponin','49563-0', 'KUH|COMPONENT_ID:2327'  -- TROPONIN I, POC	TNIP
+        from dual
+		union all select 'D-dimer','7799-0', 'KUH|COMPONENT_ID:3094'
+        from dual
+		union all select 'prothrombin time (PT)','5902-2', 'KUH|COMPONENT_ID:52032'
+        from dual
+		union all select 'procalcitonin','33959-8', 'KUH|COMPONENT_ID:664'
+        from dual
+		union all select 'C-reactive protein (CRP)','1988-5', 'KUH|COMPONENT_ID:3186'
+        from dual
 	) l
+;
+/* eyeball it:
+select * from loinc_mapping lm
+left join dconnolly.counts_by_concept cbc on cbc.concept_cd = lm.c_basecode
+order by lm.test, patients desc;
+
+find more candidates:
+select cbc.*, cc.* from clarity.clarity_component cc
+left join dconnolly.counts_by_concept cbc on cbc.concept_cd = 'KUH|COMPONENT_ID:' || component_id
+where lower(name) like '%prothrombin%';
+*/
 
 
 --************************************************************
