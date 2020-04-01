@@ -175,21 +175,22 @@ where lower(name) like '%prothrombin%';
 -- * Set patients_in_icu = -2 if you do not have ICU data
 -- * Set new_deaths = -2 if you do not have death data
 --------------------------------------------------------------
-select d.d date, 
+create table daily as
+select d.d, 
 		(select count(*) 
-			from #covid_pos_patients p 
+			from covid_pos_patients p 
 			where p.covid_pos_date=d.d
 		) new_positive_cases,
 		(select count(distinct patient_num) 
-			from #icu_dates i 
+			from icu_dates i 
 			where i.start_date<=d.d and i.end_date>=d.d
 		) patients_in_icu,
 		(select count(*) 
 			from patient_dimension t 
-			where t.death_date=d.d and t.patient_num in (select patient_num from #covid_pos_patients)
+			where t.death_date=d.d and t.patient_num in (select patient_num from covid_pos_patients)
 		) new_deaths
-	into #daily
-	from #date_list d
+	from date_list d
+;
 
 --------------------------------------------------------------
 -- Create Demographics table
