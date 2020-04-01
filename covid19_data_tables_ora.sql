@@ -153,7 +153,7 @@ select Test, LOINC, C_BASECODE
 ;
 /* eyeball it:
 select * from loinc_mapping lm
-left join dconnolly.counts_by_concept cbc on cbc.concept_cd = lm.c_basecode
+left join counts_by_concept cbc on cbc.concept_cd = lm.c_basecode
 order by lm.test, patients desc;
 
 find more candidates:
@@ -186,7 +186,7 @@ select d.d,
 			where i.start_date<=d.d and i.end_date>=d.d
 		) patients_in_icu,
 		(select count(*) 
-			from patient_dimension t 
+			from nightherondata.patient_dimension t 
 			where t.death_date=d.d and t.patient_num in (select patient_num from covid_pos_patients)
 		) new_deaths
 	from date_list d
@@ -259,7 +259,7 @@ select edg.current_icd10_list icd_code,
 		select concept_cd, count(distinct patient_num) num_patients
 		from (
 			select f.*, (f.start_date - p.covid_pos_date) + 1 days_since_positive
-			from observation_fact f
+			from nightherondata.observation_fact f
 				inner join covid_pos_patients p 
 					on f.patient_num=p.patient_num
 			where concept_cd like 'KUH|DX_ID:%'
