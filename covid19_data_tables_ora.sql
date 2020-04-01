@@ -13,8 +13,8 @@ create table covid_pos_patients (
   patient_num, covid_pos_date,
   primary key (patient_num)
 )
-from observation_fact obs
 as select patient_num, cast(min(trunc(start_date)) as date) covid_pos_date
+from nightherondata.observation_fact obs
 where obs.concept_cd in (
  'KUH|COMPONENT_ID:6551', --	COVID-19 (SARS-COV-2) PCR SOURCE
  'KUH|COMPONENT_ID:6552' --	COVID-19 (SARS-COV-2) PCR
@@ -82,7 +82,7 @@ create table icu_dates (
 )
 as
 select distinct obs.patient_num, trunc(obs.start_date), trunc(coalesce(obs.end_date, current_date))
-from observation_fact obs
+from nightherondata.observation_fact obs
 join covid_pos_patients p
 			on obs.patient_num=p.patient_num 
 where obs.concept_cd in (
