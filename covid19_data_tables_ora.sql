@@ -13,8 +13,8 @@ create table covid_pos_patients (
   patient_num, covid_pos_date,
   primary key (patient_num)
 )
-as select patient_num, cast(min(start_date) as date) covid_pos_date
 from observation_fact obs
+as select patient_num, cast(min(trunc(start_date)) as date) covid_pos_date
 where obs.concept_cd in (
  'KUH|COMPONENT_ID:6551', --	COVID-19 (SARS-COV-2) PCR SOURCE
  'KUH|COMPONENT_ID:6552' --	COVID-19 (SARS-COV-2) PCR
