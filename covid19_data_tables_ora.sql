@@ -196,10 +196,12 @@ select d.d,
 -- Create Demographics table
 -- * Customize the sex_cd codes as needed.
 --------------------------------------------------------------
-;with a as (
-	select (case sex_cd when 'M' then 'Male' when 'F' then 'Female' else 'Other' end) sex, age_in_years_num age
-	from patient_dimension
-	where patient_num in (select patient_num from #covid_pos_patients)
+-- select sex_cd, count(*) from patient_dimension group by sex_cd;
+create table demographics as
+with a as (
+	select (case sex_cd when 'm' then 'Male' when 'f' then 'Female' else 'Other' end) sex, age_in_years_num age
+	from nightherondata.patient_dimension
+	where patient_num in (select patient_num from covid_pos_patients)
 )
 select sex, count(*) total_patients,
 		sum(case when age between 0 and 2 then 1 else 0 end) age_0to2,
