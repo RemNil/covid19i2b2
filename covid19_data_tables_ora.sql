@@ -211,28 +211,29 @@ select sex, count(*) total_patients,
 		sum(case when age between 50 and 69 then 1 else 0 end) age_50to69,
 		sum(case when age between 70 and 79 then 1 else 0 end) age_70to79,
 		sum(case when age >= 80 then 1 else 0 end) age_80plus
-	into #demographics
 	from (
 		select sex, age from a
 		union all
 		select 'All', age from a
 	) t
 	group by sex
+;
+-- select * from demographics;
 
 --------------------------------------------------------------
 -- Create Labs table
 --------------------------------------------------------------
+create table labs as
 select loinc, days_since_positive, 
-		count(*) num_patients, avg(val) mean_value, stdev(val) stdev_val
-	into #labs
+		count(*) num_patients, avg(val) mean_value, stddev(val) stdev_val
 	from (
 		select loinc, patient_num, days_since_positive, avg(nval_num) val
 		from (
-			select f.*, l.loinc, datediff(dd,p.covid_pos_date,f.start_date)+1 days_since_positive
-			from observation_fact f
-				inner join #covid_pos_patients p 
+			select f.*, l.loinc, (trunc(f.start_date) - p.covid_pos_date) + 1 days_since_positive
+			from nightherondata.observation_fact f
+				inner join covid_pos_patients p 
 					on f.patient_num=p.patient_num
-				inner join #loinc_mapping l
+				inner join loinc_mapping l
 					on f.concept_cd=l.c_basecode
 			where f.nval_num is not null and l.c_basecode is not null
 		) t
