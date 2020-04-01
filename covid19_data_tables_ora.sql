@@ -9,12 +9,29 @@
 -- Create the list of COVID-19 positive patients
 -- * Customize for your local codes.
 --------------------------------------------------------------
-select patient_num, cast(min(start_date) as date) covid_pos_date
-	into #covid_pos_patients
-	from observation_fact
-	where concept_cd = 'LAB|LOINC:COVID19POS'
+create table covid_pos_patients (
+  patient_num, covid_pos_date,
+  primary key (patient_num)
+)
+as select patient_num, cast(min(start_date) as date) covid_pos_date
+from observation_fact obs
+where obs.concept_cd in (
+ 'KUH|COMPONENT_ID:6551', --	COVID-19 (SARS-COV-2) PCR SOURCE
+ 'KUH|COMPONENT_ID:6552' --	COVID-19 (SARS-COV-2) PCR
+-- 'KUH|COMPONENT_ID:3523', --	CORONAVIRUS BL
+-- 'KUH|COMPONENT_ID:3527' --	CORONAVIRUS NW
+/*
+ select 'KUH|COMPONENT_ID:' || cc.component_id as concept_cd, name
+ from clarity.clarity_component cc
+ where name in ('CORONAVIRUS BL', 'CORONAVIRUS NW')
+ or lower(name) like '%covid%'
+*/
+)
+and lower(tval_char) in ('detected', 'dectected')
+-- and start_date >= date '2020-01-01'
 	group by patient_num
-alter table #covid_pos_patients add primary key (patient_num)
+;
+-- select * from covid_pos_patients order by covid_pos_date;
 
 --------------------------------------------------------------
 -- Create a list of dates since the first case
