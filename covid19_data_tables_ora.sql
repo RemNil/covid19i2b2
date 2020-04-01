@@ -311,8 +311,8 @@ update #diagnoses
 -- * Labs-SiteID.csv
 -- * Diagnoses-SiteID.csv
 --------------------------------------------------------------
-select 'BIDMC' siteid, * from #daily order by date
-select 'BIDMC' siteid, * from #demographics
-select 'BIDMC' siteid, * from #labs order by loinc, days_since_positive
-select 'BIDMC' siteid, * from #diagnoses order by num_patients desc
+select 'KUMC' siteid, * from #daily order by date
+select 'KUMC' siteid, * from #demographics
+select 'KUMC' siteid, * from #labs order by loinc, days_since_positive
+select 'KUMC' siteid, * from #diagnoses order by num_patients desc
 
