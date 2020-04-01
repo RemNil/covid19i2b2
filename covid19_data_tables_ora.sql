@@ -70,20 +70,32 @@ order by 1
 -- * This example uses the location_cd.
 -- * Skip this section if you do not have ICU data.
 --------------------------------------------------------------
-create table #icu_dates (
-	patient_num int not null,
-	start_date date not null,
-	end_date date not null
+--                 <dimcode>\i2b2\Visit Details\ServiceDepartments\Inpatient Visits\Intensive Care\</dimcode>
+--                 <tooltip>Visit Details \ Clinical Service Department per O2 \ Inpatient Visits</tooltip>
+
+drop table icu_dates;
+create table icu_dates (
+	patient_num,
+	start_date,
+	end_date,
+    primary key (patient_num, start_date, end_date)
 )
-alter table #icu_dates add primary key (patient_num, start_date, end_date)
-insert into #icu_dates
-	select distinct v.patient_num, start_date, isnull(end_date,GetDate())
-	from visit_dimension v
-		inner join #covid_pos_patients p
-			on v.patient_num=p.patient_num 
-				and (v.end_date is null or v.end_date>=p.covid_pos_date)
-	where v.start_date is not null
-		and v.location_cd = 'ICU'
+as
+select distinct obs.patient_num, trunc(obs.start_date), trunc(coalesce(obs.end_date, current_date))
+from observation_fact obs
+join covid_pos_patients p
+			on obs.patient_num=p.patient_num 
+where obs.concept_cd in (
+    'KUH|VISITDETAIL|HSPDEPT:101088160' -- BH28 ICU
+  , 'KUH|VISITDETAIL|HSPDEPT:101010008' -- BH61 ICU
+  , 'KUH|VISITDETAIL|HSPDEPT:101088340' -- BH63 ICU
+  , 'KUH|VISITDETAIL|HSPDEPT:101088150' -- BH65 ICU 
+)
+and obs.end_date is null or obs.end_date>=p.covid_pos_date
+and obs.start_date >= date '2019-10-01'
+;
+-- select * from icu_dates;
+
 
 --------------------------------------------------------------
 -- Create a list of lab tests and local codes
