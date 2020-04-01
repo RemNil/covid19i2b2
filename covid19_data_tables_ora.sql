@@ -241,28 +241,32 @@ select loinc, days_since_positive,
 		group by loinc, patient_num, days_since_positive
 	) t
 	group by loinc, days_since_positive
+;
+select * from labs;
 
 --------------------------------------------------------------
 -- Create Diagnosis table
 -- * Customize to select ICD9 and ICD10 codes.
 --------------------------------------------------------------
-select replace(replace(concept_cd,'DIAG|ICD10:',''),'DIAG|ICD9:','') icd_code,
-		(case when concept_cd like 'DIAG|ICD10:%' then 10 else 9 end) icd_version,
-		num_patients
-	into #diagnoses
+create table diagnoses as
+select edg.current_icd10_list icd_code,
+		10  icd_version,
+		num_patients,
+        edg.dx_name
 	from (
 		select concept_cd, count(distinct patient_num) num_patients
 		from (
-			select f.*, datediff(dd,p.covid_pos_date,f.start_date)+1 days_since_positive
+			select f.*, (f.start_date - p.covid_pos_date) + 1 days_since_positive
 			from observation_fact f
-				inner join #covid_pos_patients p 
+				inner join covid_pos_patients p 
 					on f.patient_num=p.patient_num
-			where concept_cd like 'DIAG|ICD%'
+			where concept_cd like 'KUH|DX_ID:%'
 		) t
 		where days_since_positive>=-6
 		group by concept_cd
 	) t
-
+    join clarity.clarity_edg edg on 'KUH|DX_ID:' || edg.dx_id = t.concept_cd
+;
 
 --************************************************************
 --************************************************************
