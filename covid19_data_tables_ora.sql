@@ -36,19 +36,33 @@ and lower(tval_char) in ('detected', 'dectected')
 --------------------------------------------------------------
 -- Create a list of dates since the first case
 --------------------------------------------------------------
-;with n as (
-	select 0 n union all select 1 union all select 2 union all select 3 union all select 4 
-	union all select 5 union all select 6 union all select 7 union all select 8 union all select 9
+create table date_list (d, primary key(d)) as
+with n as (
+	select 0 n from dual union all
+    select 1 from dual union all
+    select 2 from dual union all
+    select 3 from dual union all
+    select 4 from dual union all
+    select 5 from dual union all
+    select 6 from dual union all
+    select 7 from dual union all
+    select 8 from dual union all
+    select 9 from dual
 )
-select d
-	into #date_list
-	from (
-		select isnull(cast(dateadd(dd,a.n+10*b.n+100*c.n,p.s) as date),'1/1/2020') d
-		from (select min(covid_pos_date) s from #covid_pos_patients) p
-			cross join n a cross join n b cross join n c
-	) l
-	where d<=GetDate()
-alter table #date_list add primary key (d)
+, delta as (
+    select a.n + 10 * b.n + 100 * c.n as days
+    from n a cross join n b cross join n c
+)
+, p as (
+    select min(trunc(covid_pos_date)) s
+    from covid_pos_patients
+)
+select p.s + delta.days as d
+from p cross join delta
+where p.s + delta.days <= current_date
+order by 1
+;
+
 
 --------------------------------------------------------------
 -- Create a list of dates when patients were in the ICU
