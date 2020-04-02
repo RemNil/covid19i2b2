@@ -291,12 +291,12 @@ select edg.current_icd10_list icd_code,
 -- * Change the small count threshold, add random numbers, etc.
 -- * Or, you can skip the queries if obfuscation is not needed.
 --------------------------------------------------------------
-/* TODO?
-update #daily
+update daily
 	set new_positive_cases = (case when new_positive_cases between 1 and 9 then -1 else new_positive_cases end),
 		patients_in_icu = (case when patients_in_icu between 1 and 9 then -1 else patients_in_icu end),
 		new_deaths = (case when new_deaths between 1 and 9 then -1 else new_deaths end)
-update #demographics
+;
+update demographics
 	set total_patients = (case when total_patients between 1 and 9 then -1 else total_patients end),
 		age_0to2 = (case when age_0to2 between 1 and 9 then -1 else age_0to2 end),
 		age_3to5 = (case when age_3to5 between 1 and 9 then -1 else age_3to5 end),
@@ -307,12 +307,15 @@ update #demographics
 		age_50to69 = (case when age_50to69 between 1 and 9 then -1 else age_50to69 end),
 		age_70to79 = (case when age_70to79 between 1 and 9 then -1 else age_70to79 end),
 		age_80plus = (case when age_80plus between 1 and 9 then -1 else age_80plus end)
-update #labs
+;
+update labs
 	set num_patients = (case when num_patients<10 then -1 else num_patients end),
 		stdev_val = (case when num_patients<10 then -1 else stdev_val end)
-update #diagnoses
+;
+update diagnoses
 	set num_patients = (case when num_patients<10 then -1 else num_patients end)
-*/
+;
+commit;
 
 --------------------------------------------------------------
 -- View the final tables
