@@ -1,3 +1,13 @@
+whenever sqlerror continue;
+drop table covid_pos_patients;
+drop table date_list;
+drop table icu_dates;
+drop table loinc_mapping;
+drop table daily;
+drop table demographics;
+drop table labs;
+drop table diagnoses;
+whenever sqlerror exit;
 
 --************************************************************
 --************************************************************
@@ -73,7 +83,7 @@ order by 1
 --                 <dimcode>\i2b2\Visit Details\ServiceDepartments\Inpatient Visits\Intensive Care\</dimcode>
 --                 <tooltip>Visit Details \ Clinical Service Department per O2 \ Inpatient Visits</tooltip>
 
-drop table icu_dates;
+-- drop table icu_dates;
 create table icu_dates (
 	patient_num,
 	start_date,
@@ -244,7 +254,7 @@ select loinc, days_since_positive,
 	) t
 	group by loinc, days_since_positive
 ;
-select * from labs;
+-- select * from labs;
 
 --------------------------------------------------------------
 -- Create Diagnosis table
@@ -281,6 +291,7 @@ select edg.current_icd10_list icd_code,
 -- * Change the small count threshold, add random numbers, etc.
 -- * Or, you can skip the queries if obfuscation is not needed.
 --------------------------------------------------------------
+/* TODO?
 update #daily
 	set new_positive_cases = (case when new_positive_cases between 1 and 9 then -1 else new_positive_cases end),
 		patients_in_icu = (case when patients_in_icu between 1 and 9 then -1 else patients_in_icu end),
@@ -301,6 +312,7 @@ update #labs
 		stdev_val = (case when num_patients<10 then -1 else stdev_val end)
 update #diagnoses
 	set num_patients = (case when num_patients<10 then -1 else num_patients end)
+*/
 
 --------------------------------------------------------------
 -- View the final tables
@@ -311,8 +323,9 @@ update #diagnoses
 -- * Labs-SiteID.csv
 -- * Diagnoses-SiteID.csv
 --------------------------------------------------------------
+/* See Jenkins / ant script
 select 'KUMC' siteid, d.* from daily d order by d;
 select 'KUMC' siteid, d.* from demographics d;
 select 'KUMC' siteid, d.* from labs d order by loinc, days_since_positive;
 select 'KUMC' siteid, d.* from diagnoses d order by num_patients desc;
-
+*/
