@@ -80,8 +80,6 @@ order by 1
 -- * This example uses the location_cd.
 -- * Skip this section if you do not have ICU data.
 --------------------------------------------------------------
---                 <dimcode>\i2b2\Visit Details\ServiceDepartments\Inpatient Visits\Intensive Care\</dimcode>
---                 <tooltip>Visit Details \ Clinical Service Department per O2 \ Inpatient Visits</tooltip>
 
 -- drop table icu_dates;
 create table icu_dates (
@@ -96,10 +94,15 @@ from nightherondata.observation_fact obs
 join covid_pos_patients p
 			on obs.patient_num=p.patient_num 
 where obs.concept_cd in (
+  --                 <tooltip>Visit Details \ Clinical Service Department per O2 \ Inpatient Visits</tooltip>
+  -- select concept_cd from concept_dimension where concept_path like '\i2b2\Visit Details\ServiceDepartments\Inpatient Visits\Intensive Care\%'
     'KUH|VISITDETAIL|HSPDEPT:101088160' -- BH28 ICU
   , 'KUH|VISITDETAIL|HSPDEPT:101010008' -- BH61 ICU
   , 'KUH|VISITDETAIL|HSPDEPT:101088340' -- BH63 ICU
   , 'KUH|VISITDETAIL|HSPDEPT:101088150' -- BH65 ICU 
+  -- "Also missing from your list is CA5 and BH66." -- Fri 4/3/2020 1:33 PM
+  , 'KUH|VISITDETAIL|HSPDEPT:101088240' -- BH66
+  , 'KUH|VISITDETAIL|HSPDEPT:101010108' -- CA5
 )
 and (obs.end_date is null or obs.end_date>=p.covid_pos_date)
 and (obs.start_date >= date '2019-10-01')
