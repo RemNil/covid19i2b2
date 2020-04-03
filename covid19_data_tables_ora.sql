@@ -101,8 +101,8 @@ where obs.concept_cd in (
   , 'KUH|VISITDETAIL|HSPDEPT:101088340' -- BH63 ICU
   , 'KUH|VISITDETAIL|HSPDEPT:101088150' -- BH65 ICU 
 )
-and obs.end_date is null or obs.end_date>=p.covid_pos_date
-and obs.start_date >= date '2019-10-01'
+and (obs.end_date is null or obs.end_date>=p.covid_pos_date)
+and (obs.start_date >= date '2019-10-01')
 ;
 -- select * from icu_dates;
 
