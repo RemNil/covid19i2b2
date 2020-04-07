@@ -124,7 +124,7 @@ select Test, LOINC, C_BASECODE
         from dual
 		union all select 'neutrophil count','751-8', 'KUH|COMPONENT_ID:3012'
         from dual
-		union all select 'lymphocyte count','731-0','KUH|COMPONENT_ID:3014'
+		union all select 'lymphocyte count','731-0','KUH|COMPONENT_ID:3016'
         from dual
 		union all select 'albumin','1751-7', 'KUH|COMPONENT_ID:1'
         from dual
