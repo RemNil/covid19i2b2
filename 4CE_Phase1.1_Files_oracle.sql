@@ -1,11 +1,12 @@
 --##############################################################################
 --### 4CE Phase 1.1
---### Date: May 6, 2020
---### Database: Microsoft SQL Server
+--### Date: May &, 2020
+--### Database: Oracle
 --### Data Model: i2b2
---### Created By: Griffin Weber (weber@hms.harvard.edu)
+--### Created By: Lav Patel (lpatel@kumc.edu). Original MSSQL version written by Griffin Weber (weber@hms.harvard.edu)
 --##############################################################################
 
+--&&YOURSITEID = KUMC
 
 --******************************************************************************
 --******************************************************************************
@@ -16,25 +17,25 @@
 --------------------------------------------------------------------------------
 -- General settings
 --------------------------------------------------------------------------------
-create table #config (
+create table config (
 	siteid varchar(20), -- Up to 20 letters or numbers, must start with letter, no spaces or special characters.
-	include_race bit, -- 1 if your site collects race/ethnicity data; 0 if your site does not collect this.
-	race_in_fact_table bit, -- 1 if race in observation_fact.concept_cd; 0 if in patient_dimension.race_cd
-	hispanic_in_fact_table bit, -- 1 if Hispanic/Latino in observation_fact.concept_cd; 0 if in patient_dimension.race_cd
-	death_data_accurate bit, -- 1 if the patient_dimension.death_date field is populated and is accurate
+	include_race NUMBER(3), -- 1 if your site collects race/ethnicity data; 0 if your site does not collect this.
+	race_in_fact_table NUMBER(3), -- 1 if race in observation_fact.concept_cd; 0 if in patient_dimension.race_cd
+	hispanic_in_fact_table NUMBER(3), -- 1 if Hispanic/Latino in observation_fact.concept_cd; 0 if in patient_dimension.race_cd
+	death_data_accurate NUMBER(3), -- 1 if the patient_dimension.death_date field is populated and is accurate
 	code_prefix_icd9cm varchar(50), -- prefix (scheme) used in front of a ICD9CM diagnosis code [required]
 	code_prefix_icd10cm varchar(50), -- prefix (scheme) used in front of a ICD10CM diagnosis code [required]
 	code_prefix_icd9proc varchar(50), -- prefix (scheme) used in front of a ICD9 procedure code [required]
 	code_prefix_icd10pcs varchar(50), -- prefix (scheme) used in front of a ICD10 procedure code [required]
 	obfuscation_blur int, -- Add random number +/-blur to each count (0 = no blur)
 	obfuscation_small_count_mask int, -- Replace counts less than mask with -99 (0 = no small count masking)
-	obfuscation_small_count_delete bit, -- Delete rows with small counts (0 = no, 1 = yes)
-	obfuscation_demographics bit, -- Replace combination demographics and total counts with -999 (0 = no, 1 = yes)
-	output_as_columns bit, -- Return the data in tables with separate columns per field
-	output_as_csv bit -- Return the data in tables with a single column containing comma separated values
-)
-insert into #config
-	select 'YOURSITEID', -- siteid
+	obfuscation_small_count_delete NUMBER(3), -- Delete rows with small counts (0 = no, 1 = yes)
+	obfuscation_demographics NUMBER(3), -- Replace combination demographics and total counts with -999 (0 = no, 1 = yes)
+	output_as_columns NUMBER(3), -- Return the data in tables with separate columns per field
+	output_as_csv NUMBER(3) -- Return the data in tables with a single column containing comma separated values
+);
+insert into config
+	select '&&YOURSITEID', -- siteid
 		1, -- include_race
 		0, -- race_in_fact_table
 		1, -- hispanic_in_fact_table
@@ -49,7 +50,7 @@ insert into #config
 		0, -- obfuscation_demographics
 		0, -- output_as_columns
 		1 -- output_as_csv
-
+from dual;
 -- ! If your ICD codes do not start with a prefix (e.g., "ICD:"), then you will
 -- ! need to customize the query that populates the #Diagnoses table so that
 -- ! only diagnosis codes are selected from the observation_fact table.
@@ -60,13 +61,13 @@ insert into #config
 -- * Modify the "local_code" to match your database.
 -- * Repeat a code multiple times if you have more than one local code.
 --------------------------------------------------------------------------------
-create table #code_map (
+create table code_map (
 	code varchar(50) not null,
 	local_code varchar(50) not null
-)
-alter table #code_map add primary key (code, local_code)
+);
+alter table code_map add primary key (code, local_code);
 -- Inpatient visits (visit_dimension.inout_cd)
-insert into #code_map
+insert into code_map
 	select 'inpatient', 'I'
 	union all select 'inpatient', 'IN'
 -- Sex (patient_dimension.sex_cd)
