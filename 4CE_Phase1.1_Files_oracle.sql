@@ -3,7 +3,8 @@
 --### Date: May &, 2020
 --### Database: Oracle
 --### Data Model: i2b2
---### Created By: Lav Patel (lpatel@kumc.edu). Original MSSQL version written by Griffin Weber (weber@hms.harvard.edu)
+--### Created By: Griffin Weber (weber@hms.harvard.edu)
+--### Modified By for Oracle : Lav Patel (lpatel@kumc.edu)
 --##############################################################################
 
 --&&YOURSITEID = KUMC
@@ -51,6 +52,7 @@ insert into config
 		0, -- output_as_columns
 		1 -- output_as_csv
 from dual;
+commit;
 -- ! If your ICD codes do not start with a prefix (e.g., "ICD:"), then you will
 -- ! need to customize the query that populates the #Diagnoses table so that
 -- ! only diagnosis codes are selected from the observation_fact table.
@@ -68,39 +70,46 @@ create table code_map (
 alter table code_map add primary key (code, local_code);
 -- Inpatient visits (visit_dimension.inout_cd)
 insert into code_map
-	select 'inpatient', 'I'
-	union all select 'inpatient', 'IN'
+	select 'inpatient', 'I' from dual
+	union all select 'inpatient', 'IN' from dual
+;
+
 -- Sex (patient_dimension.sex_cd)
-insert into #code_map
-	select 'male', 'M'
-	union all select 'male', 'Male'
-	union all select 'female', 'F'
-	union all select 'female', 'Female'
+insert into code_map
+	select 'male', 'M'  from dual
+	union all select 'male', 'Male'  from dual
+	union all select 'female', 'F'  from dual
+	union all select 'female', 'Female'  from dual
+;
 -- Race (field based on #config.race_in_fact_table; ignore if you don't collect race/ethnicity)
-insert into #code_map
-	select 'american_indian', 'NA'
-	union all select 'asian', 'A'
-	union all select 'asian', 'AS'
-	union all select 'black', 'B'
-	union all select 'hawaiian_pacific_islander', 'H'
-	union all select 'hawaiian_pacific_islander', 'P'
-	union all select 'white', 'W'
+insert into code_map
+	select 'american_indian', 'NA' from dual
+	union all select 'asian', 'A'  from dual
+	union all select 'asian', 'AS' from dual
+	union all select 'black', 'B'  from dual
+	union all select 'hawaiian_pacific_islander', 'H'  from dual
+	union all select 'hawaiian_pacific_islander', 'P' from dual
+	union all select 'white', 'W' from dual
+;
 -- Hispanic/Latino (field based on #config.hispanic_in_fact_table; ignore if you don't collect race/ethnicity)
-insert into #code_map
-	select 'hispanic_latino', 'DEM|HISP:Y'
-	union all select 'hispanic_latino', 'DEM|HISPANIC:Y'
+insert into code_map
+	select 'hispanic_latino', 'DEM|HISP:Y' from dual
+	union all select 'hispanic_latino', 'DEM|HISPANIC:Y' from dual
+;
 -- Codes that indicate a positive COVID-19 test result (use either option #1 and/or option #2)
 -- COVID-19 Positive Option #1: individual concept_cd values
-insert into #code_map
-	select 'covidpos', 'LOINC:COVID19POS'
+insert into code_map
+	select 'covidpos', 'LOINC:COVID19POS' from dual
+;
 -- COVID-19 Positive Option #2: an ontology path (the example here is the COVID ACT "Any Positive Test" path)
-insert into #code_map
+insert into code_map
 	select distinct 'covidpos', concept_cd
-	from concept_dimension c
+	from "&&i2b2_schema".concept_dimension c
 	where concept_path like '\ACT\UMLS_C0031437\SNOMED_3947185011\UMLS_C0022885\UMLS_C1335447\%'
 		and concept_cd is not null
-		and not exists (select * from #code_map m where m.code='covidpos' and m.local_code=c.concept_cd)
-
+		and not exists (select * from code_map m where m.code='covidpos' and m.local_code=c.concept_cd)
+;
+commit;
 
 --------------------------------------------------------------------------------
 -- Lab mappings
