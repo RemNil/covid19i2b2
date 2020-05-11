@@ -4,7 +4,7 @@
 --### Database: Oracle
 --### Data Model: i2b2
 --### Created By: Griffin Weber (weber@hms.harvard.edu)
---### Modified By for Oracle : Lav Patel (lpatel@kumc.edu)
+--### Modified for Oracle By : Lav Patel (lpatel@kumc.edu)
 --##############################################################################
 
 --&&YOURSITEID = KUMC
@@ -121,42 +121,42 @@ commit;
 -- * The lab value will be multiplied by the scale_factor
 -- *   to convert from your units to the 4CE units.
 --------------------------------------------------------------------------------
-create table #lab_map (
+create table lab_map (
 	loinc varchar(20) not null, 
 	local_lab_code varchar(50) not null, 
 	scale_factor float, 
 	lab_units varchar(20), 
 	lab_name varchar(100)
-)
-alter table #lab_map add primary key (loinc, local_lab_code)
-insert into #lab_map
+);
+alter table lab_map add primary key (loinc, local_lab_code);
+insert into lab_map
 	select loinc, 'LOINC:'+local_lab_code,  -- Change "LOINC:" to your local LOINC code prefix (scheme)
 		scale_factor, lab_units, lab_name
 	from (
-		select '6690-2' loinc, '6690-2' local_lab_code, '1' scale_factor, '10*3/uL' lab_units, 'white blood cell count (Leukocytes)' lab_name
-		union select '751-8','751-8','1','10*3/uL','neutrophil count'
-		union select '731-0','731-0','1','10*3/uL','lymphocyte count'
-		union select '1751-7','1751-7','1','g/dL','albumin'
-		union select '2532-0','2532-0','1','U/L','lactate dehydrogenase (LDH)'
-		union select '1742-6','1742-6','1','U/L','alanine aminotransferase (ALT)'
-		union select '1920-8','1920-8','1','U/L','aspartate aminotransferase (AST)'
-		union select '1975-2','1975-2','1','mg/dL','total bilirubin'
-		union select '2160-0','2160-0','1','mg/dL','creatinine'
-		union select '49563-0','49563-0','1','ng/mL','cardiac troponin (High Sensitivity)'
-		union select '6598-7','6598-7','1','ug/L','cardiac troponin (Normal Sensitivity)'
-		union select '48065-7','48065-7','1','ng/mL{FEU}','D-dimer (FEU)'
-		union select '48066-5','48066-5','1','ng/mL{DDU}','D-dimer (DDU)'
-		union select '5902-2','5902-2','1','s','prothrombin time (PT)'
-		union select '33959-8','33959-8','1','ng/mL','procalcitonin'
-		union select '1988-5','1988-5','1','mg/L','C-reactive protein (CRP) (Normal Sensitivity)'
-		union select '3255-7','3255-7','1','mg/dL','Fibrinogen'
-		union select '2276-4','2276-4','1','ng/mL','Ferritin'
-		union select '2019-8','2019-8','1','mmHg','PaCO2'
-		union select '2703-7','2703-7','1','mmHg','PaO2'
+		select '6690-2' loinc, '6690-2' local_lab_code, 1 scale_factor, '10*3/uL' lab_units, 'white blood cell count (Leukocytes)' lab_name from dual
+		union select '751-8','751-8',1,'10*3/uL','neutrophil count' from dual
+		union select '731-0','731-0',1,'10*3/uL','lymphocyte count' from dual
+		union select '1751-7','1751-7',1,'g/dL','albumin' from dual
+		union select '2532-0','2532-0',1,'U/L','lactate dehydrogenase (LDH)' from dual
+		union select '1742-6','1742-6',1,'U/L','alanine aminotransferase (ALT)' from dual
+		union select '1920-8','1920-8',1,'U/L','aspartate aminotransferase (AST)' from dual
+		union select '1975-2','1975-2','1','mg/dL','total bilirubin' from dual
+		union select '2160-0','2160-0','1','mg/dL','creatinine' from dual
+		union select '49563-0','49563-0','1','ng/mL','cardiac troponin (High Sensitivity)' from dual
+		union select '6598-7','6598-7','1','ug/L','cardiac troponin (Normal Sensitivity)' from dual
+		union select '48065-7','48065-7','1','ng/mL{FEU}','D-dimer (FEU)' from dual
+		union select '48066-5','48066-5','1','ng/mL{DDU}','D-dimer (DDU)' from dual
+		union select '5902-2','5902-2','1','s','prothrombin time (PT)' from dual
+		union select '33959-8','33959-8','1','ng/mL','procalcitonin' from dual
+		union select '1988-5','1988-5','1','mg/L','C-reactive protein (CRP) (Normal Sensitivity)' from dual
+		union select '3255-7','3255-7','1','mg/dL','Fibrinogen' from dual
+		union select '2276-4','2276-4','1','ng/mL','Ferritin' from dual
+		union select '2019-8','2019-8','1','mmHg','PaCO2' from dual
+		union select '2703-7','2703-7','1','mmHg','PaO2' from dual
 		--union select '2703-7','second-code','1','mmHg','PaO2'
 		--union select '2703-7','third-code','1','mmHg','PaO2'
 	) t
-
+;
 -- Use the concept_dimension to get an expanded list of local lab codes (optional).
 -- Uncomment the query below to run this as part of the script.
 -- This will pull in additional labs based on your existing mappings.
@@ -1030,5 +1030,6 @@ begin
 		order by i
 
 end
+
 
 
